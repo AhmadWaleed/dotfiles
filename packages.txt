@@ -2,6 +2,7 @@
 # One name per line, installed with: sudo dnf install -y $(cat packages.txt)
 # Comments and blank lines are ignored by bootstrap.sh.
 
+gh
 helix
 zsh
 zsh-autosuggestions

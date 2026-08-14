@@ -44,7 +44,11 @@ else
     curl -fsSL https://claude.ai/install.sh | bash
 fi
 
-# --- 5. Fonts --------------------------------------------------------------
+# --- 5. GitHub SSH + gh auth ------------------------------------------------
+step "Setting up SSH key and GitHub CLI auth"
+./github-ssh.sh
+
+# --- 6. Fonts --------------------------------------------------------------
 step "Installing mononoki font"
 FONT_DIR="$HOME/.local/share/fonts/mononoki"
 if [[ -f "$FONT_DIR/mononoki-Regular.ttf" ]]; then
@@ -60,11 +64,11 @@ else
     fc-cache -f "$FONT_DIR"
 fi
 
-# --- 6. GNOME settings -------------------------------------------------------
+# --- 7. GNOME settings -------------------------------------------------------
 step "Applying GNOME settings"
 ./gnome-settings.sh
 
-# --- 7. Symlink dotfiles -----------------------------------------------------
+# --- 8. Symlink dotfiles -----------------------------------------------------
 step "Linking dotfiles into \$HOME"
 while IFS= read -r -d '' src; do
     rel="${src#"$DOTFILES_DIR"/home/}"

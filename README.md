@@ -10,6 +10,7 @@ start fresh, `git clone` + `./bootstrap.sh` gets me back to where I am today.
 ├── bootstrap.sh        # single entrypoint, idempotent, run this
 ├── packages.txt         # dnf package names, one per line
 ├── copr.txt             # copr repos to enable before installing packages
+├── github-ssh.sh        # SSH key + gh auth, so git push/gh work afterwards
 ├── gnome-settings.sh    # gsettings tweaks that don't live in a dotfile
 └── home/                # mirrors $HOME; bootstrap.sh symlinks these into place
     ├── .zshrc
