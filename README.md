@@ -17,10 +17,13 @@ start fresh, `git clone` + `./bootstrap.sh` gets me back to where I am today.
     ├── .zshrc
     ├── .claude/
     │   ├── CLAUDE.md     # global Claude Code instructions; ~/AGENTS.md links here
-    │   └── settings.json # global Claude Code settings (theme, TUI mode, ...)
-    └── .config/
-        ├── helix/config.toml
-        └── ghostty/config.ghostty
+    │   ├── settings.json # global Claude Code settings (theme, TUI mode, ...)
+    │   └── skills/dotfiles-sync-check/ # scans shell history for untracked changes
+    ├── .config/
+    │   ├── helix/config.toml
+    │   └── ghostty/config.ghostty
+    └── .local/bin/
+        └── hxg           # open git-selected files (wip/staged/todos/...) in hx
 ```
 
 Anything under `home/` is symlinked to the same relative path under `$HOME`,
@@ -47,6 +50,7 @@ cd ~/Code/dotfiles
   will pick up existing symlinks fine next time).
 - New GNOME/gsettings tweak: add the `gsettings set ...` line to
   `gnome-settings.sh`.
+- New global Claude Code skill: put it under `home/.claude/skills/`.
 
 ## Not tracked here (on purpose)
 
@@ -61,5 +65,7 @@ cd ~/Code/dotfiles
   `github-ssh.sh`), so the file itself isn't symlinked from `home/`.
 - `~/.claude.json`, `~/.config/gh/*`, `~/.zcompdump`, `~/.var` - session/app
   state, not configuration choices.
+- `~/.claude/dotfiles-sync-state.json` - `dotfiles-sync-check`'s own scan
+  progress, machine-local by design.
 - Anything containing secrets (SSH keys, API tokens, etc.) - never goes in
   this repo.
