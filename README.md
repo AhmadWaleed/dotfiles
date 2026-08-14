@@ -14,6 +14,7 @@ start fresh, `git clone` + `./bootstrap.sh` gets me back to where I am today.
 ├── gnome-settings.sh    # gsettings tweaks that don't live in a dotfile
 └── home/                # mirrors $HOME; bootstrap.sh symlinks these into place
     ├── .zshrc
+    ├── .claude/CLAUDE.md # global Claude Code instructions; ~/AGENTS.md links here
     └── .config/
         ├── helix/config.toml
         └── ghostty/config.ghostty
