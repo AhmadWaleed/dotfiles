@@ -26,6 +26,11 @@ step "Installing packages"
 mapfile -t pkgs < <(grep -vE '^\s*#|^\s*$' packages.txt)
 sudo dnf install -y "${pkgs[@]}"
 
+step "Installing Flatpak apps"
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+mapfile -t flatpaks < <(grep -vE '^\s*#|^\s*$' flatpak.txt)
+flatpak install -y --system flathub "${flatpaks[@]}"
+
 step "Setting default shell to zsh"
 if [[ "$SHELL" != "/usr/bin/zsh" ]]; then
     chsh -s /usr/bin/zsh "$USER"

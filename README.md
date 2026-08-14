@@ -10,6 +10,7 @@ start fresh, `git clone` + `./bootstrap.sh` gets me back to where I am today.
 ├── bootstrap.sh        # single entrypoint, idempotent, run this
 ├── packages.txt         # dnf package names, one per line
 ├── copr.txt             # copr repos to enable before installing packages
+├── flatpak.txt          # flatpak app IDs, installed from flathub
 ├── github-ssh.sh        # SSH key + gh auth, so git push/gh work afterwards
 ├── gnome-settings.sh    # gsettings tweaks that don't live in a dotfile
 └── home/                # mirrors $HOME; bootstrap.sh symlinks these into place
@@ -38,6 +39,7 @@ cd ~/Code/dotfiles
 
 - New CLI package: add it to `packages.txt` (and `copr.txt` if it needs a
   COPR repo first), re-run `./bootstrap.sh`.
+- New GUI app: add its app ID to `flatpak.txt`, re-run `./bootstrap.sh`.
 - New dotfile: put it under `home/` at the path it should occupy relative to
   `$HOME`, re-run `./bootstrap.sh` (or just `ln -s` it yourself, bootstrap
   will pick up existing symlinks fine next time).

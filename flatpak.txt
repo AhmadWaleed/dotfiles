@@ -1,0 +1,5 @@
+# Flatpak app IDs, installed from Flathub with:
+#   flatpak install -y --system flathub $(cat flatpak.txt)
+
+com.google.Chrome
+io.github.shiftey.Desktop
