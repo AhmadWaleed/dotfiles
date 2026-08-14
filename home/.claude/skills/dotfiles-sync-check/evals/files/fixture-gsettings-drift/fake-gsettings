@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Fake gsettings for eval testing: always reports accent-color as blue.
+if [[ "$1" == "get" && "$3" == "accent-color" ]]; then echo "'blue'"; fi

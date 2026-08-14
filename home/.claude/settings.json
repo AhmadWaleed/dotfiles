@@ -1,5 +1,8 @@
 {
   "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
-  "skipDangerousModePermissionPrompt": true
+  "enabledPlugins": {
+    "skill-creator@claude-plugins-official": true
+  }
 }

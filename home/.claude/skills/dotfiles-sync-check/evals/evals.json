@@ -9,7 +9,8 @@
       "expectations": [
         "Identifies ripgrep as the untracked package",
         "Does not report any other candidate (helix is already tracked and must not appear)",
-        "Asks for confirmation before editing any file, rather than editing packages.txt unprompted",
+        "States the finding as a one-line summary first, without immediately dumping the raw diff",
+        "Describes offering Show diff / Ignore / Not now (or equivalent) options rather than editing packages.txt unprompted",
         "Does not run git commit/push against the fixture directory (it's not a real repo)"
       ]
     },
@@ -33,6 +34,32 @@
         "Does not ask about or mention the tmux install as a new suggestion",
         "Reports zero pending candidates",
         "Does not edit packages.txt"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Can you test the file-drift part of the sync check? Treat evals/files/fixture-file-drift/live-home as my home directory (set HOME to that path when running the scanner) and evals/files/fixture-file-drift/dotfiles as the repo, scratch --state file. I think I added a git-status alias to my .zshrc directly at some point and never copied it back to the repo.",
+      "expected_output": "Detects that live ~/.zshrc (under the fixture home) has an extra `alias gs=\"git status\"` line not present in the repo's home/.zshrc, reports it as one pending change with a one-line summary first, and only shows the actual diff (- nothing removed, + the new alias line) if asked.",
+      "files": ["evals/files/fixture-file-drift/dotfiles/home/.zshrc", "evals/files/fixture-file-drift/live-home/.zshrc"],
+      "expectations": [
+        "Identifies the .zshrc drift and specifically mentions the git status alias",
+        "States it as a one-line summary before showing the full diff",
+        "The diff, once shown, shows the alias line as an addition and nothing as removed",
+        "Does not copy the live file over the repo file without asking first",
+        "Does not run git commit/push against the fixture directory"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Now test the gsettings-drift part. Dotfiles repo: evals/files/fixture-gsettings-drift/dotfiles. Use --gsettings-bin evals/files/fixture-gsettings-drift/fake-gsettings instead of the real gsettings command (it's a fake that reports accent-color as blue). Scratch --state file, no history files needed. My gnome-settings.sh says the accent color should be slate but I think I changed it since.",
+      "expected_output": "Detects that gnome-settings.sh says accent-color slate but the (fake) live value is blue, reports it as one pending change with a one-line summary first, and only shows the line-level diff (-slate / +blue) if asked.",
+      "files": ["evals/files/fixture-gsettings-drift/dotfiles/gnome-settings.sh", "evals/files/fixture-gsettings-drift/fake-gsettings"],
+      "expectations": [
+        "Identifies the accent-color drift (slate in the script vs blue live)",
+        "States it as a one-line summary before showing the full diff",
+        "The diff, once shown, shows the slate line removed and the blue line added",
+        "Does not edit gnome-settings.sh without asking first",
+        "Does not run git commit/push against the fixture directory"
       ]
     }
   ]

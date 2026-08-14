@@ -1,5 +1,5 @@
 {
   "offsets": {},
-  "dismissed": ["dnf_install:sudo dnf install tmux"],
+  "dismissed": ["history:dnf_install:sudo dnf install tmux"],
   "tracked": []
 }
