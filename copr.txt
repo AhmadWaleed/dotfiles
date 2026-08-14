@@ -1,0 +1,4 @@
+# COPR repos to enable before installing packages.txt.
+# One owner/project per line, enabled with: sudo dnf copr enable -y $(cat copr.txt)
+
+scottames/ghostty

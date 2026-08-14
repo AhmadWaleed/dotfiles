@@ -1,0 +1,27 @@
+# ~/.config/ghostty/config.ghostty
+# Reference: `ghostty +show-config --default --docs` or https://ghostty.org/docs/config/reference
+
+# --- Appearance ---
+# Adapts automatically to GNOME's light/dark switch (Settings > Appearance).
+theme = light:Gruvbox Light,dark:Gruvbox Dark
+
+font-family = mononoki
+font-size = 14
+
+cursor-style = bar
+cursor-style-blink = true
+
+# Default padding (2px) is very tight; this is the most common community tweak.
+window-padding-x = 10
+window-padding-y = 10
+window-padding-balance = true
+
+# --- Behavior ---
+mouse-hide-while-typing = true
+copy-on-select = true
+
+# Quake-style dropdown terminal, toggled globally (works even when Ghostty
+# isn't focused). Press Ctrl+Grave (the key above Tab) from anywhere.
+keybind = global:ctrl+grave=toggle_quick_terminal
+
+# shell-integration = detect already picks up zsh correctly, no change needed.

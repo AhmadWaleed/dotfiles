@@ -1,0 +1,38 @@
+# ~/.config/helix/config.toml
+# Reference: https://docs.helix-editor.com/configuration.html (verified against
+# helix 25.07.1 — `hx --version` — and the book/src/editor.md options table on
+# 2026-08-15; deliberately avoids editor.workspace-trust / editor.file-explorer /
+# editor.word-completion, which only exist on master post-25.07.1).
+
+theme = "gruvbox"
+
+[editor]
+line-number = "relative"
+cursorline = true
+rulers = [80, 120]
+bufferline = "multiple"
+color-modes = true
+auto-format = true
+completion-replace = true
+trim-trailing-whitespace = true
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.indent-guides]
+render = true
+character = "╎"
+skip-levels = 1
+
+[editor.file-picker]
+hidden = false
+
+[editor.statusline]
+left = ["mode", "spinner", "version-control", "file-name", "read-only-indicator", "file-modification-indicator"]
+center = []
+right = ["diagnostics", "selections", "position", "file-encoding", "file-line-ending"]
+
+[editor.lsp]
+display-messages = true
