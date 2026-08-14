@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
-# SSH key + GitHub CLI auth, so `git push`/`gh` work right after bootstrap.
-# Idempotent - safe to re-run. Only prompts (passphrase, browser login) when
-# something is actually missing; requires `gh` (see packages.txt) to already
-# be installed.
+# Git identity + SSH key + GitHub CLI auth, so `git push`/`gh` work right
+# after bootstrap. Idempotent - safe to re-run. Only prompts (passphrase,
+# browser login) when something is actually missing; requires `gh` (see
+# packages.txt) to already be installed.
 set -euo pipefail
 
+NAME="Ahmed waleed"
 EMAIL="ahmed_waleed1@hotmail.com"
 KEY="$HOME/.ssh/id_ed25519"
+
+git config --global user.name "$NAME"
+git config --global user.email "$EMAIL"
+git config --global core.editor hx
 
 # --- SSH key -----------------------------------------------------------------
 if [[ -f "$KEY" ]]; then
@@ -39,6 +44,7 @@ if gh auth status -h github.com >/dev/null 2>&1; then
 else
     gh auth login -h github.com -p ssh -w
 fi
+gh auth setup-git -h github.com
 
 # admin:public_key scope is needed once, to let `gh ssh-key add` manage keys.
 if gh auth status -h github.com 2>&1 | grep -q admin:public_key; then

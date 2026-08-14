@@ -11,7 +11,7 @@ start fresh, `git clone` + `./bootstrap.sh` gets me back to where I am today.
 ├── packages.txt         # dnf package names, one per line
 ├── copr.txt             # copr repos to enable before installing packages
 ├── flatpak.txt          # flatpak app IDs, installed from flathub
-├── github-ssh.sh        # SSH key + gh auth, so git push/gh work afterwards
+├── github-ssh.sh        # git identity + SSH key + gh auth
 ├── gnome-settings.sh    # gsettings tweaks that don't live in a dotfile
 └── home/                # mirrors $HOME; bootstrap.sh symlinks these into place
     ├── .zshrc
@@ -54,5 +54,12 @@ cd ~/Code/dotfiles
   get installed, not meaningful to hand-manage.
 - `.claude/settings.local.json` - Claude Code's own machine-local settings
   (auto-accumulated permission allowlist), not meant to be shared.
+- `~/.gitconfig`'s `[credential]` and `[filter "lfs"]` blocks - written by
+  `gh auth setup-git` and GitHub Desktop respectively, both already
+  reproduced as a side effect of `github-ssh.sh` and `flatpak.txt`. Only the
+  `user.name`/`user.email`/`core.editor` lines are hand-set (in
+  `github-ssh.sh`), so the file itself isn't symlinked from `home/`.
+- `~/.claude.json`, `~/.config/gh/*`, `~/.zcompdump`, `~/.var` - session/app
+  state, not configuration choices.
 - Anything containing secrets (SSH keys, API tokens, etc.) - never goes in
   this repo.
