@@ -45,6 +45,18 @@ else
     curl -fsSL https://claude.ai/install.sh | bash
 fi
 
+step "Adding Claude Code marketplaces"
+mapfile -t marketplaces < <(grep -vE '^\s*#|^\s*$' claude-marketplaces.txt)
+for m in "${marketplaces[@]}"; do
+    claude plugin marketplace add "$m"
+done
+
+step "Installing Claude Code plugins"
+mapfile -t plugins < <(grep -vE '^\s*#|^\s*$' claude-plugins.txt)
+for p in "${plugins[@]}"; do
+    claude plugin install -y "$p"
+done
+
 step "Setting up SSH key and GitHub CLI auth"
 ./github-ssh.sh
 
@@ -61,6 +73,14 @@ else
     find "$tmp" -name '*.ttf' -exec cp {} "$FONT_DIR/" \;
     rm -rf "$tmp"
     fc-cache -f "$FONT_DIR"
+fi
+
+step "Installing zsh-z"
+ZSH_Z_DIR="$HOME/.local/share/zsh-z"
+if [[ -d "$ZSH_Z_DIR/.git" ]]; then
+    git -C "$ZSH_Z_DIR" pull --ff-only
+else
+    git clone --depth 1 https://github.com/agkozak/zsh-z.git "$ZSH_Z_DIR"
 fi
 
 step "Applying GNOME settings"

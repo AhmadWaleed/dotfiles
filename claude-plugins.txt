@@ -1,0 +1,5 @@
+# Claude Code marketplace plugins, installed with:
+#   claude plugin install -y <name>@<marketplace>
+# Marketplace(s) added first from claude-marketplaces.txt.
+
+skill-creator@claude-plugins-official

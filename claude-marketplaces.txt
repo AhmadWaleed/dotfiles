@@ -1,0 +1,4 @@
+# Claude Code plugin marketplaces, added with:
+#   claude plugin marketplace add <source>
+
+anthropics/claude-plugins-official

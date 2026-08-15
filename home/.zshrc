@@ -20,6 +20,7 @@ autoload -Uz compinit && compinit
 PROMPT='%F{cyan}%n@%m%f %F{blue}%~%f %# '
 
 source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source "$HOME/.local/share/zsh-z/zsh-z.plugin.zsh"
 
 yolo() {
     claude --dangerously-skip-permissions "$@"

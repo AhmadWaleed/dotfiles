@@ -11,6 +11,8 @@ start fresh, `git clone` + `./bootstrap.sh` gets me back to where I am today.
 ├── packages.txt         # dnf package names, one per line
 ├── copr.txt             # copr repos to enable before installing packages
 ├── flatpak.txt          # flatpak app IDs, installed from flathub
+├── claude-marketplaces.txt # Claude Code plugin marketplaces to add
+├── claude-plugins.txt   # Claude Code marketplace plugins to install
 ├── github-ssh.sh        # git identity + SSH key + gh auth
 ├── gnome-settings.sh    # gsettings tweaks that don't live in a dotfile
 └── home/                # mirrors $HOME; bootstrap.sh symlinks these into place
@@ -51,6 +53,8 @@ cd ~/Code/dotfiles
 - New GNOME/gsettings tweak: add the `gsettings set ...` line to
   `gnome-settings.sh`.
 - New global Claude Code skill: put it under `home/.claude/skills/`.
+- New Claude Code plugin: add it to `claude-plugins.txt` (and
+  `claude-marketplaces.txt` if it needs a new marketplace first).
 
 ## Not tracked here (on purpose)
 
