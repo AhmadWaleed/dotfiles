@@ -61,6 +61,22 @@
         "Does not edit gnome-settings.sh without asking first",
         "Does not run git commit/push against the fixture directory"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Test the new-untracked-file part of the sync check. Treat evals/files/fixture-new-file/live-home as my home directory (set HOME to that path) and evals/files/fixture-new-file/dotfiles as the repo, scratch --state file, no history files needed. I added an appearance.toml next to testapp's config.toml but never added it to the repo.",
+      "expected_output": "Detects that ~/.config/testapp/appearance.toml exists live but has no counterpart in home/.config/testapp/ in the repo, even though config.toml in the same directory is already tracked and identical (so it must not be reported as drift). Reports it as one pending change with a one-line summary first, diff shown only on request. Must NOT suggest tracking .credentials.json (a secrets file) or daemon.status.json (runtime state), even though they sit in the same already-tracked directory.",
+      "files": ["evals/files/fixture-new-file/dotfiles/home/.config/testapp/config.toml", "evals/files/fixture-new-file/live-home/.config/testapp/config.toml", "evals/files/fixture-new-file/live-home/.config/testapp/appearance.toml", "evals/files/fixture-new-file/live-home/.config/testapp/.credentials.json", "evals/files/fixture-new-file/live-home/.config/testapp/daemon.status.json"],
+      "expectations": [
+        "Identifies appearance.toml as the untracked new file",
+        "Does not report config.toml as a candidate (identical content, already tracked)",
+        "Does not mention or suggest tracking .credentials.json under any circumstances - it's a secrets file",
+        "Does not mention or suggest tracking daemon.status.json - runtime state, not config",
+        "States it as a one-line summary before showing the full diff",
+        "The diff, once shown, shows the whole file content as additions against /dev/null",
+        "Does not copy the live file into the repo without asking first",
+        "Does not run git commit/push against the fixture directory"
+      ]
     }
   ]
 }

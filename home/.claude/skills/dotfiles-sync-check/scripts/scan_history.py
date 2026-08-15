@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """Deterministic half of dotfiles-sync-check: find everything the dotfiles
-repo is supposed to track but doesn't yet, in three ways:
+repo is supposed to track but doesn't yet, in four ways:
 
   1. history  - shell-history commands (dnf/flatpak/gsettings/...) not yet
                 reflected in the repo's tracking files.
   2. file     - tracked files under home/ whose live copy has diverged
                 (manual edits that never got copied back).
   3. gsettings - gnome-settings.sh lines whose live value no longer matches.
+  4. newfile  - a brand-new file sitting next to files that are already
+                tracked (e.g. ~/.config/helix/languages.toml appearing next
+                to an already-tracked ~/.config/helix/config.toml). Only
+                fires in directories that already have at least one tracked
+                file, not the whole home directory - see
+                scan_untracked_new_files for why.
 
 Each candidate carries a one-line `summary` (for the first, no-diff mention)
 and a full `diff` (only shown if the user asks to see it), plus an `apply`
@@ -219,6 +225,88 @@ def scan_file_drift(dotfiles_dir: Path, state: dict) -> list[dict]:
     return candidates
 
 
+MAX_NEW_FILE_SIZE = 1_000_000  # config files worth tracking are small text;
+# anything bigger is almost certainly a binary/cache, not worth even reading
+NEW_FILE_IGNORE_SUFFIXES = (".pyc", ".swp", ".swo", "~", ".lock", ".log", ".cache")
+NEW_FILE_IGNORE_NAMES = {".DS_Store"}
+# Hard exclusion, not just noise-reduction: directories like ~/.claude mix
+# deliberate config with runtime state and, in .credentials.json's case,
+# literal secrets. A "did you mean to track this?" prompt is the wrong
+# safeguard for a credentials file - the failure mode if someone click-
+# approves without reading closely is a leaked secret, not clutter. So this
+# is matched before the file is ever offered as a candidate, not left to
+# review.
+NEW_FILE_IGNORE_PATTERN = re.compile(
+    r"credential|token|secret|passwd|\.pem$|\.key$|"
+    r"\.local\.\w+$|"        # *.local.json etc - explicit "don't sync" convention
+    r"\.status\.\w+$|"       # daemon.status.json etc - runtime status, not config
+    r"\.jsonl$|"             # log/journal files
+    r"^\.last-|"             # cleanup markers / other transient state
+    r"[-.]state\.\w+$",      # *-state.json / *.state.json - scan progress, not config
+    re.IGNORECASE,
+)
+
+
+def scan_untracked_new_files(dotfiles_dir: Path, state: dict) -> list[dict]:
+    """New files sitting in a live directory that already has at least one
+    sibling tracked in the repo - e.g. ~/.config/helix/languages.toml
+    appearing after ~/.config/helix/config.toml is already tracked, or a new
+    script dropped into ~/.local/bin next to one that's already tracked.
+
+    Anchoring on directories we've already decided to track (rather than
+    walking the whole home directory) is what keeps this from drowning in
+    caches, app state, and everything else nobody wants surfaced. The
+    trade-off: a tool with zero files tracked anywhere yet (a brand new app
+    with no existing anchor) still won't be caught - that's still a "decide
+    this is worth tracking" judgment call, not something scanning answers.
+    """
+    home_dir = dotfiles_dir / "home"
+    if not home_dir.is_dir():
+        return []
+    tracked_dirs = sorted({p.parent for p in home_dir.rglob("*") if p.is_file()})
+    candidates = []
+    for repo_subdir in tracked_dirs:
+        rel_dir = repo_subdir.relative_to(home_dir)
+        if rel_dir == Path("."):
+            continue  # bare $HOME itself - anchoring here would scan the whole home dir
+        live_dir = Path.home() / rel_dir
+        if not live_dir.is_dir() or live_dir.is_symlink():
+            continue
+        for live_file in sorted(live_dir.iterdir()):
+            if not live_file.is_file() or live_file.is_symlink():
+                continue
+            name = live_file.name
+            if name in NEW_FILE_IGNORE_NAMES or name.endswith(NEW_FILE_IGNORE_SUFFIXES):
+                continue
+            if NEW_FILE_IGNORE_PATTERN.search(name):
+                continue
+            repo_file = repo_subdir / name
+            if repo_file.exists():
+                continue  # already tracked - content drift, if any, is scan_file_drift's job
+            try:
+                if live_file.stat().st_size > MAX_NEW_FILE_SIZE:
+                    continue
+            except OSError:
+                continue
+            rel_file = live_file.relative_to(Path.home())
+            new_id = f"newfile:{rel_file}"
+            if new_id in state["dismissed"] or new_id in state["tracked"]:
+                continue
+            try:
+                text = live_file.read_text(errors="ignore")
+            except OSError:
+                continue
+            added = "".join(f"+{line}\n" for line in text.splitlines()) or "+ (empty file)\n"
+            candidates.append({
+                "id": new_id,
+                "kind": "newfile",
+                "summary": f"~/{rel_file} exists but isn't tracked (other files in ~/{rel_dir} already are)",
+                "diff": f"--- /dev/null\n+++ live: ~/{rel_file}\n{added}",
+                "apply": {"action": "copy_file", "src": str(live_file), "dest": str(repo_file)},
+            })
+    return candidates
+
+
 def scan_gsettings_drift(dotfiles_dir: Path, state: dict, gsettings_bin: str = "gsettings") -> list[dict]:
     settings_file = dotfiles_dir / "gnome-settings.sh"
     if not settings_file.is_file():
@@ -265,6 +353,7 @@ def cmd_scan(args):
     candidates = []
     candidates += scan_history_candidates(dotfiles_dir, history_files, state)
     candidates += scan_file_drift(dotfiles_dir, state)
+    candidates += scan_untracked_new_files(dotfiles_dir, state)
     candidates += scan_gsettings_drift(dotfiles_dir, state, args.gsettings_bin)
 
     save_state(Path(args.state), state)

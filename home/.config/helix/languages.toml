@@ -1,0 +1,74 @@
+# ~/.config/helix/languages.toml
+# Local overrides on top of Helix's built-in languages.toml.
+#
+# 1. Helix's default c/cpp entries wire up clangd (and clang-format for cpp)
+#    but leave the per-language `auto-format` key unset, which defaults to
+#    false regardless of the global [editor] auto-format = true in
+#    config.toml - doc.auto_format() ANDs the two. Without this, :w never
+#    formats c/cpp files. https://docs.helix-editor.com/languages.html
+#
+# 2. Helix 25.07.1 sends DAP request seq starting at 0; lldb-dap (LLVM
+#    21/22) crashes on seq:0 in the initialize request ("DAP Loop
+#    terminated due to an internal error" / "server closed the stream").
+#    Fix is unmerged upstream: helix-editor/helix#16142. The [language.debugger]
+#    tables below are full copies of the upstream defaults with `command`
+#    pointed at a local seq-rewriting shim (~/.local/bin/lldb-dap-seq-shim)
+#    instead of bare "lldb-dap" - remove once that PR lands in a release.
+
+[[language]]
+name = "c"
+auto-format = true
+
+[language.debugger]
+name = "lldb-dap"
+transport = "stdio"
+command = "/home/aw/.local/bin/lldb-dap-seq-shim"
+
+[[language.debugger.templates]]
+name = "binary"
+request = "launch"
+completion = [ { name = "binary", completion = "filename" } ]
+args = { console = "internalConsole", program = "{0}" }
+
+[[language.debugger.templates]]
+name = "attach"
+request = "attach"
+completion = [ "pid" ]
+args = { console = "internalConsole", pid = "{0}" }
+
+[[language.debugger.templates]]
+name = "gdbserver attach"
+request = "attach"
+completion = [ { name = "lldb connect url", default = "connect://localhost:3333" },
+  { name = "file", completion = "filename" }, "pid" ]
+args = { console = "internalConsole", attachCommands = [ "platform select remote-gdb-server",
+  "platform connect {0}", "file {1}", "attach {2}" ] }
+
+[[language]]
+name = "cpp"
+auto-format = true
+
+[language.debugger]
+name = "lldb-dap"
+transport = "stdio"
+command = "/home/aw/.local/bin/lldb-dap-seq-shim"
+
+[[language.debugger.templates]]
+name = "binary"
+request = "launch"
+completion = [ { name = "binary", completion = "filename" } ]
+args = { console = "internalConsole", program = "{0}" }
+
+[[language.debugger.templates]]
+name = "attach"
+request = "attach"
+completion = [ "pid" ]
+args = { console = "internalConsole", pid = "{0}" }
+
+[[language.debugger.templates]]
+name = "gdbserver attach"
+request = "attach"
+completion = [ { name = "lldb connect url", default = "connect://localhost:3333" },
+  { name = "file", completion = "filename" }, "pid" ]
+args = { console = "internalConsole", attachCommands = [ "platform select remote-gdb-server",
+  "platform connect {0}", "file {1}", "attach {2}" ] }
