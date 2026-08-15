@@ -45,6 +45,20 @@ else
     curl -fsSL https://claude.ai/install.sh | bash
 fi
 
+step "Installing opencode"
+if [[ -x "$HOME/.opencode/bin/opencode" ]]; then
+    echo "already installed"
+else
+    curl -fsSL https://opencode.ai/install | bash
+fi
+
+step "Installing llama"
+if [[ -x "$HOME/.local/bin/llama" ]]; then
+    echo "already installed"
+else
+    curl -LsSf https://llama.app/install.sh | sh
+fi
+
 step "Adding Claude Code marketplaces"
 mapfile -t marketplaces < <(grep -vE '^\s*#|^\s*$' claude-marketplaces.txt)
 for m in "${marketplaces[@]}"; do

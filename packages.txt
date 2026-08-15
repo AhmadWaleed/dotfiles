@@ -8,3 +8,6 @@ zsh
 zsh-autosuggestions
 ghostty
 xdg-terminal-exec
+clang-tools-extra
+lldb
+claudecode

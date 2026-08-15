@@ -3,3 +3,4 @@
 
 com.google.Chrome
 io.github.shiftey.Desktop
+com.jetbrains.CLion
