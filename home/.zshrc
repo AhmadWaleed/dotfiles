@@ -25,3 +25,6 @@ source "$HOME/.local/share/zsh-z/zsh-z.plugin.zsh"
 yolo() {
     claude --dangerously-skip-permissions "$@"
 }
+
+# opencode
+export PATH=/home/aw/.opencode/bin:$PATH
