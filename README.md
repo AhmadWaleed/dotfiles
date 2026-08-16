@@ -74,5 +74,10 @@ cd ~/Code/dotfiles
   state, not configuration choices.
 - `~/.claude/dotfiles-sync-state.json` - `dotfiles-sync-check`'s own scan
   progress, machine-local by design.
+- `~/.config/llama-router/env` - GPU device, MoE CPU-offload split, thread
+  count for `llama-router`. Genuinely hardware-specific (varies by GPU
+  model/VRAM and which local LLM you're running), so the script reads it if
+  present and falls back to generic defaults otherwise - see
+  `home/.local/bin/llama-router`'s header comment.
 - Anything containing secrets (SSH keys, API tokens, etc.) - never goes in
   this repo.

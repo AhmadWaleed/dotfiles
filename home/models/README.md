@@ -22,23 +22,46 @@ llama-router
 That's `~/.local/bin/llama-router` - see it for the full flag breakdown and
 reasoning. Notably it uses the Vulkan build (`llama-server-vk`, downloaded
 from llama.cpp's GitHub releases), not the `llama` CLI's own CUDA backend:
-CUDA has an unresolved upstream bug on this machine that crashes on
-generation (cublasCreate_v2 resource allocation failure -
+as of writing, CUDA has an unresolved upstream bug that crashes on
+generation for large models (cublasCreate_v2 resource allocation failure -
 https://github.com/ggml-org/llama.cpp/issues/25304). Vulkan sidesteps it
-entirely and still runs on the RTX 4070 via the proprietary driver.
+entirely, at some performance cost vs. a working CUDA setup - worth
+retrying `llama serve` (CUDA) if that issue is closed by the time you read
+this.
 
-`--models-max 1` keeps only one model loaded at a time - the RTX 4070 here
-has 8GB VRAM, not enough to hold two large models concurrently. Switching
-models reloads (a few seconds), it doesn't restart the server.
+`--models-max 1` keeps only one model loaded at a time - fine for a single
+consumer GPU, which typically doesn't have enough VRAM to hold multiple
+large models concurrently. Switching models reloads (a few seconds), it
+doesn't restart the server.
 
-`llama-router` also hardcodes `-ncmoe 32`, a GPU/CPU offload split tuned
-specifically for Qwen3.6-35B-A3B via `llama fit-params`. A different model
-(different size or layer count) will want a different value - recompute it:
+**First-time setup on a new machine:** `llama-router` needs a few
+hardware-specific numbers it can't guess safely - which GPU to use (if you
+have more than one), how many MoE expert layers to keep on CPU vs. GPU, and
+CPU thread count. These go in `~/.config/llama-router/env`, *not* tracked
+in this repo (same reasoning as `.claude/settings.local.json` - see the
+root README's "Not tracked here" section). Without it, `llama-router` falls
+back to generic defaults (auto device selection, no forced CPU offload, all
+CPU cores) - safe on a small/fully-GPU-resident model, but auto-fit for GPU
+layer placement has known bugs with large MoE models (same issue as above),
+so compute your own values instead of trusting auto for anything big:
 
 ```
+llama-server-vk --list-devices                    # find your GPU's name/index
+
 llama fit-params -hf <org>/<repo>-GGUF:<quant> -c 32768 -fa on -ctk q8_0 -ctv q8_0 \
   --fit-print on -ncmoe N
 ```
 
 Try a few values of `N` and pick the largest offload (smallest `N`) whose
-CUDA0/device total still leaves ~1GB headroom under your free VRAM.
+device total still leaves ~1GB headroom under your free VRAM. Physical
+(not logical/hyperthread) CPU core count is usually the right thread count.
+Then:
+
+```
+mkdir -p ~/.config/llama-router
+cat > ~/.config/llama-router/env << 'EOF'
+LLAMA_DEVICE=<from --list-devices>
+LLAMA_NCMOE=<tuned N>
+LLAMA_THREADS=<physical core count>
+EOF
+```
