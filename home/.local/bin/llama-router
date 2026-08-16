@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Local llama.cpp router server - serves every model in ~/models, switchable
+# at runtime (OpenCode's /models, or the web UI dropdown at :8080).
+#
+# Uses the Vulkan build (llama-server-vk), not the CUDA one: the CUDA
+# backend has an unresolved upstream bug on this machine that crashes on
+# generation (cublasCreate_v2 resource allocation failure -
+# https://github.com/ggml-org/llama.cpp/issues/25304). Vulkan doesn't route
+# through cuBLAS, so it isn't affected, and with the proprietary NVIDIA
+# driver installed it still runs on the RTX 4070 (not the Intel iGPU).
+#
+# Flags, and why:
+#   --models-dir ~/models   router mode: auto-registers every .gguf here
+#   --models-max 1          only one model loaded at a time (8GB VRAM can't
+#                            hold two large models concurrently)
+#   --device Vulkan1        pin to the RTX 4070 (Vulkan0 is the Intel iGPU)
+#   -ngl 99                 put everything possible on GPU
+#   -ncmoe 32                keep the first 32 layers' MoE expert weights in
+#                            CPU RAM; the rest goes to GPU. Tuned via
+#                            `llama fit-params` to use ~6.2GB of the 8GB
+#                            VRAM budget - see ~/models/README.md for how to
+#                            recompute this for a different model.
+#   -np 1                   single request slot (correct for solo use; more
+#                            slots multiply KV-cache memory for no benefit)
+#   -t 16 -tb 16             16 threads - physical core count on this CPU
+#                            (Core Ultra 7 155H: 22 logical, 16 physical),
+#                            not all 22 logical/hyperthread count
+#   -c 32768                32K token context
+#   -ctk q8_0 -ctv q8_0      8-bit KV cache (K and V), roughly halves KV
+#                            cache memory for a small quality cost
+#   -fa on                  flash attention; also required for quantized KV
+#                            cache to work
+#   --jinja                 proper chat template + tool-calling parsing,
+#                            needed for OpenCode's agentic tool calls
+#   --api-key local-dev-key  must match opencode.json's provider apiKey
+#
+# -ncmoe 32 was tuned for Qwen3.6-35B-A3B specifically. A different model
+# may want a different value - rerun fit-params against it, see
+# ~/models/README.md.
+
+exec ~/.local/bin/llama-server-vk \
+  --models-dir ~/models \
+  --models-max 1 \
+  --device Vulkan1 \
+  -ngl 99 \
+  -ncmoe 32 \
+  -np 1 \
+  -t 16 -tb 16 \
+  -c 32768 \
+  -ctk q8_0 -ctv q8_0 \
+  -fa on \
+  --jinja \
+  --api-key local-dev-key \
+  "$@"
