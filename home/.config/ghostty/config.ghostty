@@ -30,3 +30,69 @@ keybind = ctrl+v=paste_from_clipboard
 keybind = global:ctrl+grave=toggle_quick_terminal
 
 # shell-integration = detect already picks up zsh correctly, no change needed.
+
+# --- iTerm2-style keybindings (Mac muscle memory) ---
+# GNOME reserves the literal Super key for its own shortcuts (Super+1-9,
+# Super+arrows, Super+Tab, Super+H, ...), which are grabbed by the
+# compositor before Ghostty ever sees them. Ctrl+Alt is used here instead
+# as a conflict-free "Cmd" stand-in for iTerm2's Cmd-based shortcuts.
+
+# Tabs: Cmd+T, Cmd+W, Cmd+1-9, Cmd+Shift+[ ]
+keybind = ctrl+alt+t=new_tab
+keybind = ctrl+alt+w=close_surface
+keybind = ctrl+alt+shift+w=close_window
+keybind = ctrl+alt+shift+[=previous_tab
+keybind = ctrl+alt+shift+]=next_tab
+keybind = ctrl+alt+1=goto_tab:1
+keybind = ctrl+alt+2=goto_tab:2
+keybind = ctrl+alt+3=goto_tab:3
+keybind = ctrl+alt+4=goto_tab:4
+keybind = ctrl+alt+5=goto_tab:5
+keybind = ctrl+alt+6=goto_tab:6
+keybind = ctrl+alt+7=goto_tab:7
+keybind = ctrl+alt+8=goto_tab:8
+keybind = ctrl+alt+9=last_tab
+
+# Splits: Cmd+D, Cmd+Shift+D, Cmd+[ ], Cmd+Ctrl+Shift+Arrows
+# Split *focus* by direction (Cmd+Option+Arrows) is already the Ghostty
+# default at ctrl+alt+arrow_up/down/left/right, unchanged here.
+keybind = ctrl+alt+d=new_split:right
+keybind = ctrl+alt+shift+d=new_split:down
+keybind = ctrl+alt+[=goto_split:previous
+keybind = ctrl+alt+]=goto_split:next
+keybind = ctrl+alt+shift+arrow_up=resize_split:up,10
+keybind = ctrl+alt+shift+arrow_down=resize_split:down,10
+keybind = ctrl+alt+shift+arrow_left=resize_split:left,10
+keybind = ctrl+alt+shift+arrow_right=resize_split:right,10
+keybind = ctrl+alt+shift+==equalize_splits
+
+# Font size: Cmd+=, Cmd+-, Cmd+0
+keybind = ctrl+alt+==increase_font_size:1
+keybind = ctrl+alt++=increase_font_size:1
+keybind = ctrl+alt+-=decrease_font_size:1
+keybind = ctrl+alt+0=reset_font_size
+
+# Clipboard, search, clear: Cmd+C, Cmd+V, Cmd+F, Cmd+K, Cmd+A
+keybind = ctrl+alt+c=copy_to_clipboard
+keybind = ctrl+alt+v=paste_from_clipboard
+keybind = ctrl+alt+f=start_search
+keybind = ctrl+alt+k=clear_screen
+keybind = ctrl+alt+a=select_all
+
+# Window: Cmd+N, Cmd+Enter, Cmd+Shift+Option+W
+keybind = ctrl+alt+n=new_window
+keybind = ctrl+alt+enter=toggle_fullscreen
+keybind = ctrl+alt+shift+q=close_all_windows
+
+# Split zoom, config, inspector, scroll nav: Cmd+Shift+Enter, Cmd+,,
+# Cmd+Shift+,, Cmd+Option+I, Cmd+Home/End, Cmd+PageUp/Down.
+# (Already reachable via Ghostty's plain Ctrl+Shift+.. defaults too;
+# these add the Ctrl+Alt aliases for muscle-memory consistency.)
+keybind = ctrl+alt+shift+enter=toggle_split_zoom
+keybind = ctrl+alt+,=open_config
+keybind = ctrl+alt+shift+,=reload_config
+keybind = ctrl+alt+i=inspector:toggle
+keybind = ctrl+alt+home=scroll_to_top
+keybind = ctrl+alt+end=scroll_to_bottom
+keybind = ctrl+alt+page_up=scroll_page_up
+keybind = ctrl+alt+page_down=scroll_page_down

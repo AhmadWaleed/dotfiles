@@ -12,3 +12,4 @@ clang-tools-extra
 lldb
 claudecode
 akmod-nvidia
+glow
