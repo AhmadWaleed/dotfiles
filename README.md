@@ -23,9 +23,11 @@ start fresh, `git clone` + `./bootstrap.sh` gets me back to where I am today.
     │   └── skills/dotfiles-sync-check/ # scans shell history for untracked changes
     ├── .config/
     │   ├── helix/config.toml
-    │   └── ghostty/config.ghostty
-    └── .local/bin/
-        └── hxg           # open git-selected files (wip/staged/todos/...) in hx
+    │   ├── ghostty/config.ghostty
+    │   └── opencode/opencode.json # points opencode at the local llama.cpp server
+    ├── .local/bin/
+    │   └── hxg           # open git-selected files (wip/staged/todos/...) in hx
+    └── models/            # local GGUF models dir; contents gitignored, see its README
 ```
 
 Anything under `home/` is symlinked to the same relative path under `$HOME`,
