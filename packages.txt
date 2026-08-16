@@ -11,3 +11,4 @@ xdg-terminal-exec
 clang-tools-extra
 lldb
 claudecode
+akmod-nvidia
