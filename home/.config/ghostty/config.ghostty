@@ -1,6 +1,10 @@
 # ~/.config/ghostty/config.ghostty
 # Reference: `ghostty +show-config --default --docs` or https://ghostty.org/docs/config/reference
 
+# Pin shell explicitly - Ghostty's single-instance process caches $SHELL
+# from its own start time rather than re-reading /etc/passwd.
+command = zsh
+
 # --- Appearance ---
 # Adapts automatically to GNOME's light/dark switch (Settings > Appearance).
 theme = light:Gruvbox Light,dark:Gruvbox Dark
