@@ -9,3 +9,5 @@ gsettings set org.gnome.desktop.peripherals.keyboard repeat-interval 25
 
 gsettings set org.gnome.desktop.interface color-scheme prefer-dark
 gsettings set org.gnome.desktop.interface accent-color slate
+
+xdg-settings set default-web-browser com.google.Chrome.desktop

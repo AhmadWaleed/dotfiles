@@ -26,6 +26,28 @@ step "Installing packages"
 mapfile -t pkgs < <(grep -vE '^\s*#|^\s*$' packages.txt)
 sudo dnf install -y "${pkgs[@]}"
 
+step "Installing GPU drivers"
+gpu_info="$(lspci -nnk | grep -Ei 'vga compatible controller|3d controller' || true)"
+if grep -qi 'nvidia' <<<"$gpu_info"; then
+    echo "NVIDIA GPU detected"
+    if rpm -q rpmfusion-nonfree-release >/dev/null 2>&1; then
+        echo "RPM Fusion already enabled"
+    else
+        fedora_ver="$(rpm -E %fedora)"
+        sudo dnf install -y \
+            "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${fedora_ver}.noarch.rpm" \
+            "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${fedora_ver}.noarch.rpm"
+    fi
+    sudo dnf install -y akmod-nvidia
+    echo "akmod-nvidia installed - reboot required for the kernel module to build and load"
+elif grep -qi 'amd\|ati' <<<"$gpu_info"; then
+    echo "AMD GPU detected - Fedora's default Mesa/amdgpu driver already covers this, nothing to install"
+elif grep -qi 'intel' <<<"$gpu_info"; then
+    echo "Intel GPU detected - Fedora's default Mesa/i915 driver already covers this, nothing to install"
+else
+    echo "No recognized GPU vendor detected, skipping"
+fi
+
 step "Installing Flatpak apps"
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 mapfile -t flatpaks < <(grep -vE '^\s*#|^\s*$' flatpak.txt)
@@ -49,7 +71,9 @@ step "Installing opencode"
 if [[ -x "$HOME/.opencode/bin/opencode" ]]; then
     echo "already installed"
 else
-    curl -fsSL https://opencode.ai/install | bash
+    oc_version="$(curl -sL -o /dev/null -w '%{url_effective}' \
+        https://github.com/anomalyco/opencode/releases/latest | sed 's#.*/v##')"
+    curl -fsSL https://opencode.ai/install | bash -s -- --version "$oc_version"
 fi
 
 step "Installing llama"
