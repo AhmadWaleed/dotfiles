@@ -161,5 +161,9 @@ done < <(find "$DOTFILES_DIR/home" -type f -print0)
 
 ln -sf .claude/CLAUDE.md "$HOME/AGENTS.md"
 
+step "Enabling Conky autostart"
+systemctl --user daemon-reload
+systemctl --user enable --now conky.service
+
 step "Done"
 echo "Restart your terminal (or log out/in) for the shell and GNOME changes to fully apply."

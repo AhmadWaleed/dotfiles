@@ -34,3 +34,11 @@ themselves).
    already applied) - this repo should never describe a state the machine
    isn't actually in.
 3. Update `README.md`'s layout diagram if a new top-level file/dir is added.
+
+## App-specific gotchas
+
+- **Conky** (`home/.config/conky/`): `conky.conf` is the source file; the
+  live `~/.config/conky/conky.generated.conf` is a derived copy with
+  `__NET_IFACE__` substituted in by `scripts/launch-conky.sh` at every
+  start - never edit the generated one, and don't add it to this repo (it's
+  gitignored). See `home/.config/conky/README.md` for the user-facing guide.

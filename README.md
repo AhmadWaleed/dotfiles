@@ -24,7 +24,9 @@ start fresh, `git clone` + `./bootstrap.sh` gets me back to where I am today.
     ├── .config/
     │   ├── helix/config.toml
     │   ├── ghostty/config.ghostty
-    │   └── opencode/opencode.json # points opencode at the local llama.cpp server
+    │   ├── opencode/opencode.json # points opencode at the local llama.cpp server
+    │   ├── conky/         # desktop system monitor widget, see its README
+    │   └── systemd/user/conky.service # autostarts conky on login
     ├── .local/bin/
     │   ├── hxg           # open git-selected files (wip/staged/todos/...) in hx
     │   └── llama-router  # launch the local llama.cpp router server (see models/README.md)
