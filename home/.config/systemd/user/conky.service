@@ -5,9 +5,7 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
-# graphical-session.target only means the session started, not that
-# Mutter's compositor has finished settling - conky's window can end up
-# created-but-not-actually-shown if it races that. A short delay avoids it.
+# avoid racing Mutter's startup
 ExecStartPre=/usr/bin/sleep 5
 ExecStart=%h/.config/conky/scripts/launch-conky.sh
 Restart=on-failure
