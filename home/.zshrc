@@ -15,12 +15,13 @@ setopt HIST_IGNORE_DUPS
 
 setopt AUTO_CD
 setopt CORRECT
-autoload -Uz compinit && compinit
 
 PROMPT='%F{cyan}%n@%m%f %F{blue}%~%f %# '
 
 source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source "$HOME/.local/share/zsh-z/zsh-z.plugin.zsh"
+
+autoload -Uz compinit && compinit
 
 yolo() {
     claude --dangerously-skip-permissions "$@"
