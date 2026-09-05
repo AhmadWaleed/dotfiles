@@ -121,6 +121,24 @@ else
     git clone --depth 1 https://github.com/agkozak/zsh-z.git "$ZSH_Z_DIR"
 fi
 
+step "Installing Internet Speed Meter GNOME extension"
+# https://github.com/foss-desk/internet-speed-meter - not packaged for Fedora,
+# so pull it straight from extensions.gnome.org.
+EXT_UUID="speed-meter@mojahid.lunecode.com"
+if gnome-extensions list 2>/dev/null | grep -qx "$EXT_UUID"; then
+    echo "already installed"
+else
+    shell_ver="$(gnome-shell --version | grep -oP '\d+' | head -1)"
+    ext_info="$(curl -fsSL "https://extensions.gnome.org/extension-info/?uuid=${EXT_UUID}&shell_version=${shell_ver}")"
+    version_pk="$(grep -oP "\"${shell_ver}\":\s*\{\"pk\":\s*\K\d+" <<<"$ext_info")"
+    tmp="$(mktemp -d)"
+    curl -fsSL -o "$tmp/ext.zip" \
+        "https://extensions.gnome.org/download-extension/${EXT_UUID}.shell-extension.zip?version_tag=${version_pk}"
+    gnome-extensions install --force "$tmp/ext.zip"
+    rm -rf "$tmp"
+fi
+gnome-extensions enable "$EXT_UUID" 2>/dev/null || echo "log out/in, then run: gnome-extensions enable $EXT_UUID"
+
 step "Applying GNOME settings"
 ./gnome-settings.sh
 
