@@ -24,6 +24,17 @@ systemctl --user restart conky   # also re-detects the active network interface
 systemctl --user disable conky   # turn off autostart
 ```
 
+## Showing it over other windows
+
+By design it stays *below* other windows (`own_window_hints = 'below'`), so
+once the desktop isn't empty it's hidden behind whatever you're using -
+that's the intended default, not a bug.
+
+Press **Super+Shift+C** to pin it on top temporarily; press it again to put
+it back below. This runs `scripts/toggle-conky.sh`, which flips the window
+between `_NET_WM_STATE_BELOW` and `_NET_WM_STATE_ABOVE` via `wmctrl` - it
+doesn't restart conky, so no data/graph history is lost.
+
 ## Files
 
 - `conky.conf` - the actual config, edit this. **Not** `conky.generated.conf`

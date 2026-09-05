@@ -41,4 +41,7 @@ themselves).
   live `~/.config/conky/conky.generated.conf` is a derived copy with
   `__NET_IFACE__` substituted in by `scripts/launch-conky.sh` at every
   start - never edit the generated one, and don't add it to this repo (it's
-  gitignored). See `home/.config/conky/README.md` for the user-facing guide.
+  gitignored). Its window normally stays below other windows by design;
+  Super+Shift+C (`gnome-settings.sh`'s only custom keybinding so far, and
+  `scripts/toggle-conky.sh`) pins it above them temporarily. See
+  `home/.config/conky/README.md` for the user-facing guide.
