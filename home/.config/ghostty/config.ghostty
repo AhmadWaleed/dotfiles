@@ -31,7 +31,7 @@ keybind = ctrl+v=paste_from_clipboard
 
 # Quake-style dropdown terminal, toggled globally (works even when Ghostty
 # isn't focused). Press Ctrl+Grave (the key above Tab) from anywhere.
-keybind = global:ctrl+grave=toggle_quick_terminal
+keybind = global:ctrl+backquote=toggle_quick_terminal
 
 # shell-integration = detect already picks up zsh correctly, no change needed.
 
