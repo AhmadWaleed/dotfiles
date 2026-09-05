@@ -11,3 +11,4 @@ xdg-terminal-exec
 clang-tools-extra
 lldb
 glow
+gnome-shell-extension-caffeine

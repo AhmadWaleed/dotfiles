@@ -4,3 +4,4 @@
 com.google.Chrome
 io.github.shiftey.Desktop
 com.jetbrains.CLion
+com.github.marktext.marktext

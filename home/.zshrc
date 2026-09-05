@@ -26,5 +26,8 @@ yolo() {
     claude --dangerously-skip-permissions "$@"
 }
 
+# Mimic Mac caffeinate -dimsu
+alias caffeinate='systemd-inhibit --what=idle:sleep --mode=block sleep infinity'
+
 # opencode
 export PATH=/home/aw/.opencode/bin:$PATH

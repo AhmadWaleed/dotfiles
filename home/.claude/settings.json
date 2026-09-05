@@ -2,9 +2,6 @@
   "enabledPlugins": {
     "skill-creator@claude-plugins-official": true
   },
-  "tui": "fullscreen",
-  "skipDangerousModePermissionPrompt": true,
-  "theme": "dark",
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
       "source": {
@@ -12,5 +9,9 @@
         "repo": "anthropics/claude-plugins-official"
       }
     }
-  }
+  },
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "dark",
+  "agentPushNotifEnabled": true
 }
