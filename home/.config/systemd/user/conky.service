@@ -5,8 +5,6 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
-# avoid racing Mutter's startup
-ExecStartPre=/usr/bin/sleep 5
 ExecStart=%h/.config/conky/scripts/launch-conky.sh
 Restart=on-failure
 RestartSec=3
