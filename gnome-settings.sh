@@ -12,6 +12,12 @@ gsettings set org.gnome.desktop.interface accent-color slate
 
 xdg-settings set default-web-browser com.google.Chrome.desktop
 
+# Desktop background and lock screen, from home/Pictures/Wallpapers/.
+WALLPAPER="$HOME/Pictures/Wallpapers/blackhole-3059x1721.png"
+gsettings set org.gnome.desktop.background picture-uri "file://$WALLPAPER"
+gsettings set org.gnome.desktop.background picture-uri-dark "file://$WALLPAPER"
+gsettings set org.gnome.desktop.screensaver picture-uri "file://$WALLPAPER"
+
 # Super+Shift+C: temporarily pin Conky above other windows (it normally
 # stays below/hidden once the desktop isn't empty), toggled by
 # ~/.config/conky/scripts/toggle-conky.sh. Only custom keybinding so far -
