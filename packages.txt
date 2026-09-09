@@ -16,3 +16,5 @@ conky
 ibm-plex-mono-fonts
 lm_sensors
 wmctrl
+libasan
+libubsan
