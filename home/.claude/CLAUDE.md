@@ -10,3 +10,4 @@
 - When end-to-end testing a product, be picky about the UI and obsess over pixel perfection - fix anything that looks off along the way, even if unrelated.
 - Apply that same standard to engineering excellence: fix lint errors, test failures, and test flakiness you encounter, even if unrelated to the current task.
 - Before using "dynamic workflows", "ultra code", or any harness feature that spawns a large swarm of subagents, explain the tradeoffs and get explicit approval first.
+- When a project keeps reusable reference docs in a `docs/` folder (one focused concept per file), maintain a `docs/README.md` index: one line per file naming what it covers. Read the index first to find or avoid duplicating a topic instead of globbing/opening every file, and add/update a row whenever a doc file is added or rescoped.
