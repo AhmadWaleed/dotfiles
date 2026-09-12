@@ -32,3 +32,6 @@ alias caffeinate='systemd-inhibit --what=idle:sleep --mode=block sleep infinity'
 
 # opencode
 export PATH=/home/aw/.opencode/bin:$PATH
+
+# Show system info on new terminal
+fastfetch

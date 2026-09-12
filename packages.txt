@@ -18,3 +18,4 @@ lm_sensors
 wmctrl
 libasan
 libubsan
+fastfetch
