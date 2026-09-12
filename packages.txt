@@ -19,3 +19,5 @@ wmctrl
 libasan
 libubsan
 fastfetch
+podman-docker
+podman-compose
