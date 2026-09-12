@@ -29,9 +29,15 @@ yolo() {
 
 # Mimic Mac caffeinate -dimsu
 alias caffeinate='systemd-inhibit --what=idle:sleep --mode=block sleep infinity'
+alias open='xdg-open'
 
 # opencode
 export PATH=/home/aw/.opencode/bin:$PATH
 
+# Flutter (fvm) + Android SDK
+export ANDROID_HOME=$HOME/Android/Sdk
+export PATH=$HOME/fvm/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
+
 # Show system info on new terminal
 fastfetch
+export PATH=$PATH:/home/aw/.local/go-sdk/go/bin:/home/aw/go/bin

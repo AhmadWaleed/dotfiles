@@ -67,6 +67,13 @@ else
     curl -fsSL https://claude.ai/install.sh | bash
 fi
 
+step "Installing Codex CLI"
+if command -v codex >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/codex" ]]; then
+    echo "already installed"
+else
+    npm install -g --prefix "$HOME/.local" @openai/codex
+fi
+
 step "Installing opencode"
 if [[ -x "$HOME/.opencode/bin/opencode" ]]; then
     echo "already installed"
@@ -121,23 +128,86 @@ else
     git clone --depth 1 https://github.com/agkozak/zsh-z.git "$ZSH_Z_DIR"
 fi
 
-step "Installing Internet Speed Meter GNOME extension"
-# https://github.com/foss-desk/internet-speed-meter - not packaged for Fedora,
-# so pull it straight from extensions.gnome.org.
-EXT_UUID="speed-meter@mojahid.lunecode.com"
-if gnome-extensions list 2>/dev/null | grep -qx "$EXT_UUID"; then
+step "Installing fvm"
+# Flutter SDKs are per-project (.fvmrc), fetched on demand by fvm.
+if [[ -x "$HOME/fvm/bin/fvm" ]]; then
     echo "already installed"
 else
-    shell_ver="$(gnome-shell --version | grep -oP '\d+' | head -1)"
-    ext_info="$(curl -fsSL "https://extensions.gnome.org/extension-info/?uuid=${EXT_UUID}&shell_version=${shell_ver}")"
-    version_pk="$(grep -oP "\"${shell_ver}\":\s*\{\"pk\":\s*\K\d+" <<<"$ext_info")"
+    curl -fsSL https://fvm.app/install.sh | bash
+fi
+
+step "Installing Android SDK"
+# CLI tools only, no Android Studio. Emulator images/AVDs are per-project.
+ANDROID_HOME="$HOME/Android/Sdk"
+ANDROID_CLI="$ANDROID_HOME/cmdline-tools/latest/bin/android"
+if [[ -x "$ANDROID_CLI" ]]; then
+    echo "cmdline-tools already installed"
+else
+    tools_zip="$(curl -fsSL https://dl.google.com/android/repository/repository2-3.xml \
+        | grep -oE 'commandlinetools-linux-[0-9]+_latest\.zip' | sort -V | tail -1)"
     tmp="$(mktemp -d)"
-    curl -fsSL -o "$tmp/ext.zip" \
-        "https://extensions.gnome.org/download-extension/${EXT_UUID}.shell-extension.zip?version_tag=${version_pk}"
-    gnome-extensions install --force "$tmp/ext.zip"
+    curl -fsSL -o "$tmp/tools.zip" "https://dl.google.com/android/repository/$tools_zip"
+    unzip -q "$tmp/tools.zip" -d "$tmp"
+    mkdir -p "$ANDROID_HOME/cmdline-tools"
+    mv "$tmp/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
     rm -rf "$tmp"
 fi
-gnome-extensions enable "$EXT_UUID" 2>/dev/null || echo "log out/in, then run: gnome-extensions enable $EXT_UUID"
+"$ANDROID_CLI" --no-metrics --sdk="$ANDROID_HOME" sdk install platform-tools emulator
+
+# Installs a GNOME extension from extensions.gnome.org and enables it.
+# If no build targets this GNOME version, installs the newest build and adds
+# this version to its metadata (Shell refuses to load it otherwise).
+install_gnome_extension() {
+    local uuid="$1"
+    local ext_dir="$HOME/.local/share/gnome-shell/extensions/$uuid"
+    local shell_ver
+    shell_ver="$(gnome-shell --version | grep -oP '\d+' | head -1)"
+    if [[ -d "$ext_dir" ]]; then
+        echo "already installed"
+    else
+        local version_pk tmp
+        version_pk="$(curl -fsSL "https://extensions.gnome.org/extension-info/?uuid=${uuid}" | python3 -c '
+import json, sys
+versions = json.load(sys.stdin)["shell_version_map"]
+match = versions.get(sys.argv[1]) or max(versions.values(), key=lambda v: v["version"])
+print(match["pk"])' "$shell_ver")"
+        tmp="$(mktemp -d)"
+        curl -fsSL -o "$tmp/ext.zip" \
+            "https://extensions.gnome.org/download-extension/${uuid}.shell-extension.zip?version_tag=${version_pk}"
+        gnome-extensions install --force "$tmp/ext.zip"
+        rm -rf "$tmp"
+    fi
+    python3 - "$ext_dir/metadata.json" "$shell_ver" <<'EOF'
+import json, sys
+path, ver = sys.argv[1], sys.argv[2]
+meta = json.load(open(path))
+if ver not in meta["shell-version"]:
+    meta["shell-version"].append(ver)
+    json.dump(meta, open(path, "w"), indent=2)
+    print(f"marked compatible with GNOME {ver}")
+EOF
+    # A running Wayland session only sees newly installed extensions after
+    # re-login, so enable via gsettings; it activates on next login.
+    gnome-extensions enable "$uuid" 2>/dev/null || python3 - "$uuid" <<'EOF'
+import ast, subprocess, sys
+cur = subprocess.run(["gsettings", "get", "org.gnome.shell", "enabled-extensions"],
+                     capture_output=True, text=True, check=True).stdout
+enabled = ast.literal_eval(cur.removeprefix("@as ").strip())
+if sys.argv[1] not in enabled:
+    enabled.append(sys.argv[1])
+    subprocess.run(["gsettings", "set", "org.gnome.shell", "enabled-extensions", str(enabled)], check=True)
+print("enabled; log out/in to load it")
+EOF
+}
+
+step "Installing Internet Speed Meter GNOME extension"
+# https://github.com/foss-desk/internet-speed-meter - not packaged for Fedora.
+install_gnome_extension "speed-meter@mojahid.lunecode.com"
+
+step "Installing Claude Code Usage GNOME extension"
+# https://github.com/Haletran/claude-usage-extension - panel indicator for
+# Claude plan usage, reads the Claude Code OAuth token.
+install_gnome_extension "claude-code-usage@haletran.com"
 
 step "Applying GNOME settings"
 ./gnome-settings.sh

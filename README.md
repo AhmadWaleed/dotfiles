@@ -50,6 +50,15 @@ cd ~/Code/dotfiles
 
 ## Adding something new
 
+Codex CLI is installed by `bootstrap.sh` using
+`npm install -g --prefix "$HOME/.local" @openai/codex`. Node.js and npm come
+from `packages.txt`; the prefix puts `codex` in `~/.local/bin`, already on
+the shell PATH. Run `codex` after bootstrap to sign in.
+
+The original shell-history commands were `npm i -g @openai/codex` and
+`ln -s ~/.local/opt/node-v16.20.2-linux-x64/bin/codex ~/.local/bin/codex`.
+The explicit prefix avoids needing that machine-specific symlink.
+
 - New CLI package: add it to `packages.txt` (and `copr.txt` if it needs a
   COPR repo first), re-run `./bootstrap.sh`.
 - New GUI app: add its app ID to `flatpak.txt`, re-run `./bootstrap.sh`.

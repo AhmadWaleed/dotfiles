@@ -1,12 +1,26 @@
 {
+  "model": "opus",
   "enabledPlugins": {
-    "skill-creator@claude-plugins-official": true
+    "skill-creator@claude-plugins-official": true,
+    "humanlayer@jeffh-claude-plugins": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
       "source": {
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "jeffh-claude-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "jeffh/claude-plugins"
+      }
+    },
+    "samber": {
+      "source": {
+        "source": "github",
+        "repo": "samber/cc"
       }
     }
   },

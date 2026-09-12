@@ -8,10 +8,22 @@ with live RAM and GPU usage graphs alongside the CPU one.
 
 ## What it shows
 
-CPU (%, graph, freq, temp) - RAM (used/total, graph) - GPU (%, graph, temp,
-VRAM used/total, VRAM graph) - root/home disk usage bars + disk I/O graph -
-network up/down speed + graphs for whichever interface currently holds the
-default route - battery % + charge state - top 5 processes.
+Grouped into sections split by thin divider lines, one font size, with the
+headline number of each row right-aligned:
+
+- System - Fedora version, uptime, kernel
+- Compute - CPU (temp, freq, %, graph), RAM (used/total, %, graph), GPU
+  (temp, %, graph), VRAM (used/total, %, bar)
+- Storage - root/home usage bars side by side, disk read/write + I/O graph
+- Network - interface, IP, up/down speeds and graphs for whichever interface
+  currently holds the default route
+- Claude - plan, 5-hour session and weekly usage bars side by side, reset times
+- Codex - plan, session and weekly usage bars side by side, reset times
+- Battery - charge state, %, bar
+- Processes - top 5 by CPU with CPU% and MEM% columns
+
+Everything must fit the screen height (the window isn't scrollable), so check
+the bottom rows are still visible after adding anything.
 
 ## Start / stop
 
@@ -46,6 +58,20 @@ doesn't restart conky, so no data/graph history is lost.
 - `scripts/gpu-*.sh` - GPU usage/VRAM readouts via `amdgpu`'s sysfs
   (`gpu_busy_percent`, `mem_info_vram_*`); GPU temp itself comes from conky's
   native `${hwmon amdgpu temp 1}`, no script needed for that.
+- `scripts/claude-usage.py` - Claude usage readouts, inspired by
+  [claude-usage-conky](https://github.com/remotedots/claude-usage-conky).
+  Uses Claude Code's OAuth token (`~/.claude/.credentials.json`) to query
+  `api.anthropic.com/api/oauth/usage` (the endpoint behind `/usage`; costs
+  no tokens). All calls share a cache in `$XDG_RUNTIME_DIR`, so the API is hit
+  at most once every 5 minutes (it's rate-limited). If the fetch fails (for
+  example the token expired because Claude Code hasn't run in a while), the
+  last good values stay up, and a window whose reset time has passed shows 0%.
+
+- `scripts/codex-usage.py` - Codex usage readouts through the local CLI's
+  [account/rateLimits/read](https://developers.openai.com/codex/app-server)
+  interface. Requires `codex` signed in with ChatGPT. Refreshes at most once
+  every five minutes, sharing a cache in `$XDG_RUNTIME_DIR`. Failed refreshes
+  retain the last good values; expired windows show 0%. No model turn runs.
 
 ## Known limitations (this hardware)
 
