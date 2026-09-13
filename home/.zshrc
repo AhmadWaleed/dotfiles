@@ -24,7 +24,19 @@ source "$HOME/.local/share/zsh-z/zsh-z.plugin.zsh"
 autoload -Uz compinit && compinit
 
 yolo() {
-    claude --dangerously-skip-permissions "$@"
+    case "$1" in
+        codex)
+            shift
+            codex --dangerously-bypass-approvals-and-sandbox "$@"
+            ;;
+        claude)
+            shift
+            claude --dangerously-skip-permissions "$@"
+            ;;
+        *)
+            claude --dangerously-skip-permissions "$@"
+            ;;
+    esac
 }
 
 # Mimic Mac caffeinate -dimsu

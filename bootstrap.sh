@@ -209,6 +209,11 @@ step "Installing Claude Code Usage GNOME extension"
 # Claude plan usage, reads the Claude Code OAuth token.
 install_gnome_extension "claude-code-usage@haletran.com"
 
+step "Installing Codex Usage Indicator GNOME extension"
+# https://github.com/stonega/codex-usage-indicator - panel indicator for
+# Codex plan usage, reads the local Codex CLI authentication.
+install_gnome_extension "codex-usage-indicator@stone.dev"
+
 step "Applying GNOME settings"
 ./gnome-settings.sh
 
