@@ -1,0 +1,32 @@
+# Homebrew packages, the macOS counterpart of os/fedora/packages.txt,
+# copr.txt and flatpak.txt. Installed with: brew bundle --file=Brewfile
+
+# --- CLI ---
+brew "gh"
+brew "helix"
+brew "node"
+brew "glow"
+brew "fastfetch"
+brew "zsh-autosuggestions"
+brew "go"
+brew "llama.cpp" # llama-server with Metal, used by llama-router
+brew "podman"
+brew "podman-compose"
+brew "defaultbrowser" # used by macos-defaults.sh
+
+# clangd, clang-format, clang-tidy and lldb-dap (Fedora: clang-tools-extra,
+# lldb). Both are keg-only; os.zsh appends them to PATH after Apple's clang.
+brew "llvm"
+brew "lldb"
+
+# --- Fonts ---
+cask "font-mononoki"
+cask "font-ibm-plex-mono"
+
+# --- Apps ---
+cask "ghostty"
+cask "temurin@25" # Fedora: java-25-openjdk-devel
+cask "google-chrome"
+cask "github" # GitHub Desktop
+cask "clion"
+# MarkText: no macOS equivalent, its Homebrew cask is disabled upstream.

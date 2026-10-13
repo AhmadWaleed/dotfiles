@@ -4,9 +4,11 @@ repo is supposed to track but doesn't yet, in four ways:
 
   1. history  - shell-history commands (dnf/flatpak/gsettings/...) not yet
                 reflected in the repo's tracking files.
-  2. file     - tracked files under home/ whose live copy has diverged
+  2. file     - tracked files under home/ or os/fedora/home/ whose live copy
+                has diverged
                 (manual edits that never got copied back).
-  3. gsettings - gnome-settings.sh lines whose live value no longer matches.
+  3. gsettings - os/fedora/gnome-settings.sh lines whose live value no longer
+                matches.
   4. newfile  - a brand-new file sitting next to files that are already
                 tracked (e.g. ~/.config/helix/languages.toml appearing next
                 to an already-tracked ~/.config/helix/config.toml). Only
@@ -37,22 +39,27 @@ import subprocess
 from pathlib import Path
 
 DEFAULT_STATE = Path.home() / ".claude" / "dotfiles-sync-state.json"
+# Dotfile trees symlinked into $HOME on this machine: shared, then Fedora-only.
+HOME_TREES = [Path("home"), Path("os/fedora/home")]
+# Other OSes' files, whose package names would falsely mark a dnf install tracked.
+OTHER_OS_DIRS = [Path("os/macos")]
+GNOME_SETTINGS = "os/fedora/gnome-settings.sh"
 HISTORY_FILES = [Path.home() / ".zsh_history", Path.home() / ".bash_history"]
 
 # (category, regex, dotfiles file the category normally lands in)
 HISTORY_PATTERNS = [
-    ("dnf_install", r"^(sudo\s+)?dnf\s+install\s+", "packages.txt"),
-    ("dnf_copr", r"^(sudo\s+)?dnf\s+copr\s+enable\s+", "copr.txt"),
-    ("flatpak_install", r"^(sudo\s+)?flatpak\s+install\s+", "flatpak.txt"),
-    ("chsh", r"^chsh\s+", "bootstrap.sh"),
+    ("dnf_install", r"^(sudo\s+)?dnf\s+install\s+", "os/fedora/packages.txt"),
+    ("dnf_copr", r"^(sudo\s+)?dnf\s+copr\s+enable\s+", "os/fedora/copr.txt"),
+    ("flatpak_install", r"^(sudo\s+)?flatpak\s+install\s+", "os/fedora/flatpak.txt"),
+    ("chsh", r"^chsh\s+", "os/fedora/bootstrap.sh"),
     ("curl_install", r"curl\s+.*\|\s*(bash|sh)\b", "bootstrap.sh"),
-    ("gsettings", r"^gsettings\s+set\s+", "gnome-settings.sh"),
+    ("gsettings", r"^gsettings\s+set\s+", GNOME_SETTINGS),
     ("git_config_global", r"^git\s+config\s+--global\s+", "github-ssh.sh"),
     ("ssh_keygen", r"^ssh-keygen\s+", "github-ssh.sh"),
-    ("systemctl_enable", r"^(sudo\s+)?systemctl\s+(--now\s+)?enable\s+", "bootstrap.sh"),
-    ("npm_global", r"^(sudo\s+)?npm\s+(i|install)\s+(-g|--global)\s+", "packages.txt"),
-    ("pip_user", r"^pip3?\s+install\s+(--user\s+)?", "packages.txt"),
-    ("cargo_install", r"^cargo\s+install\s+", "packages.txt"),
+    ("systemctl_enable", r"^(sudo\s+)?systemctl\s+(--now\s+)?enable\s+", "os/fedora/bootstrap.sh"),
+    ("npm_global", r"^(sudo\s+)?npm\s+(i|install)\s+(-g|--global)\s+", "bootstrap.sh"),
+    ("pip_user", r"^pip3?\s+install\s+(--user\s+)?", "os/fedora/packages.txt"),
+    ("cargo_install", r"^cargo\s+install\s+", "os/fedora/packages.txt"),
 ]
 
 GSETTINGS_LINE = re.compile(r"^\s*gsettings\s+set\s+(\S+)\s+(\S+)\s+(.+?)\s*$")
@@ -127,15 +134,15 @@ def extract_identifiers(category: str, cmd: str) -> list[str]:
 
 
 def tracking_corpus(dotfiles_dir: Path) -> str:
-    """Concatenated content of the repo's top-level tracking files (not
-    home/ - those are the actual symlinked dotfiles, searching them would
-    match unrelated prose)."""
+    """Concatenated content of the repo's tracking files (not the HOME_TREES
+    - those are the actual symlinked dotfiles, searching them would match
+    unrelated prose - and not other OSes' files)."""
     corpus = ""
     for f in dotfiles_dir.rglob("*"):
         if not f.is_file() or ".git" in f.parts:
             continue
         rel = f.relative_to(dotfiles_dir)
-        if rel.parts and rel.parts[0] == "home":
+        if any(rel.is_relative_to(d) for d in HOME_TREES + OTHER_OS_DIRS):
             continue
         try:
             corpus += f.read_text(errors="ignore") + "\n"
@@ -189,7 +196,14 @@ def scan_history_candidates(dotfiles_dir: Path, history_files: list[Path], state
 
 
 def scan_file_drift(dotfiles_dir: Path, state: dict) -> list[dict]:
-    home_dir = dotfiles_dir / "home"
+    candidates = []
+    for tree in HOME_TREES:
+        candidates += scan_tree_drift(dotfiles_dir, tree, state)
+    return candidates
+
+
+def scan_tree_drift(dotfiles_dir: Path, tree: Path, state: dict) -> list[dict]:
+    home_dir = dotfiles_dir / tree
     if not home_dir.is_dir():
         return []
     candidates = []
@@ -213,7 +227,7 @@ def scan_file_drift(dotfiles_dir: Path, state: dict) -> list[dict]:
         diff = "".join(difflib.unified_diff(
             repo_text.splitlines(keepends=True),
             live_text.splitlines(keepends=True),
-            fromfile=f"repo: home/{rel}", tofile=f"live: ~/{rel}",
+            fromfile=f"repo: {tree}/{rel}", tofile=f"live: ~/{rel}",
         ))
         candidates.append({
             "id": drift_id,
@@ -227,7 +241,7 @@ def scan_file_drift(dotfiles_dir: Path, state: dict) -> list[dict]:
 
 MAX_NEW_FILE_SIZE = 1_000_000  # config files worth tracking are small text;
 # anything bigger is almost certainly a binary/cache, not worth even reading
-NEW_FILE_IGNORE_SUFFIXES = (".pyc", ".swp", ".swo", "~", ".lock", ".log", ".cache")
+NEW_FILE_IGNORE_SUFFIXES = (".pyc", ".swp", ".swo", "~", ".lock", ".log", ".cache", ".bak")
 NEW_FILE_IGNORE_NAMES = {".DS_Store"}
 # Hard exclusion, not just noise-reduction: directories like ~/.claude mix
 # deliberate config with runtime state and, in .credentials.json's case,
@@ -260,9 +274,21 @@ def scan_untracked_new_files(dotfiles_dir: Path, state: dict) -> list[dict]:
     with no existing anchor) still won't be caught - that's still a "decide
     this is worth tracking" judgment call, not something scanning answers.
     """
-    home_dir = dotfiles_dir / "home"
+    candidates = []
+    for tree in HOME_TREES:
+        candidates += scan_tree_new_files(dotfiles_dir, tree, state)
+    return candidates
+
+
+def scan_tree_new_files(dotfiles_dir: Path, tree: Path, state: dict) -> list[dict]:
+    home_dir = dotfiles_dir / tree
     if not home_dir.is_dir():
         return []
+    # A file tracked in any tree counts, so a shared file isn't offered again
+    # as new just because a sibling lives in the OS tree.
+    tracked_rel = {p.relative_to(dotfiles_dir / t)
+                   for t in HOME_TREES if (dotfiles_dir / t).is_dir()
+                   for p in (dotfiles_dir / t).rglob("*") if p.is_file()}
     tracked_dirs = sorted({p.parent for p in home_dir.rglob("*") if p.is_file()})
     candidates = []
     for repo_subdir in tracked_dirs:
@@ -281,7 +307,7 @@ def scan_untracked_new_files(dotfiles_dir: Path, state: dict) -> list[dict]:
             if NEW_FILE_IGNORE_PATTERN.search(name):
                 continue
             repo_file = repo_subdir / name
-            if repo_file.exists():
+            if rel_dir / name in tracked_rel:
                 continue  # already tracked - content drift, if any, is scan_file_drift's job
             try:
                 if live_file.stat().st_size > MAX_NEW_FILE_SIZE:
@@ -308,7 +334,7 @@ def scan_untracked_new_files(dotfiles_dir: Path, state: dict) -> list[dict]:
 
 
 def scan_gsettings_drift(dotfiles_dir: Path, state: dict, gsettings_bin: str = "gsettings") -> list[dict]:
-    settings_file = dotfiles_dir / "gnome-settings.sh"
+    settings_file = dotfiles_dir / GNOME_SETTINGS
     if not settings_file.is_file():
         return []
     candidates = []
@@ -337,9 +363,9 @@ def scan_gsettings_drift(dotfiles_dir: Path, state: dict, gsettings_bin: str = "
         candidates.append({
             "id": drift_id,
             "kind": "gsettings",
-            "summary": f"{schema} {key} is now {live_value!r} live, gnome-settings.sh still says {script_value!r}",
-            "diff": f"--- gnome-settings.sh\n+++ gnome-settings.sh\n-{line.strip()}\n+{new_line}",
-            "apply": {"action": "replace_line", "file": "gnome-settings.sh",
+            "summary": f"{schema} {key} is now {live_value!r} live, {GNOME_SETTINGS} still says {script_value!r}",
+            "diff": f"--- {GNOME_SETTINGS}\n+++ {GNOME_SETTINGS}\n-{line.strip()}\n+{new_line}",
+            "apply": {"action": "replace_line", "file": GNOME_SETTINGS,
                       "old_line": line.strip(), "new_line": new_line},
         })
     return candidates

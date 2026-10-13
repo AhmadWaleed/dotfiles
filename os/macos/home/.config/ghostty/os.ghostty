@@ -1,0 +1,6 @@
+# macOS-only Ghostty settings, included by ~/.config/ghostty/config.ghostty.
+# Keybindings stay at Ghostty's native Cmd defaults.
+
+# Option acts as Alt, so Alt-based shell and Helix bindings work the same as
+# on Fedora.
+macos-option-as-alt = true

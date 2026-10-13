@@ -1,6 +1,19 @@
 # Ghostty config
 
-## Overridden keybindings
+`config.ghostty` is shared by Fedora and macOS. It ends with
+`config-file = ?os.ghostty`, which pulls in the OS-specific file linked from
+`os/<os>/home/.config/ghostty/os.ghostty`:
+
+- **Fedora**: the keybindings below. GNOME grabs the Super key, so Ctrl+Alt
+  stands in for Cmd.
+- **macOS**: Ghostty's native Cmd keybindings, plus `macos-option-as-alt` so
+  Alt-based shell and Helix bindings match Fedora.
+
+The global quick-terminal bind (`global:ctrl+grave`) is shared. On macOS it
+needs Ghostty to be allowed under System Settings > Privacy & Security >
+Accessibility.
+
+## Fedora keybindings
 
 | Keybind | Action | Mimics (iTerm2/Mac) |
 |---|---|---|
@@ -40,4 +53,4 @@
 | `ctrl+alt+page_up` | `scroll_page_up` | Cmd+PageUp |
 | `ctrl+alt+page_down` | `scroll_page_down` | Cmd+PageDown |
 
-Full definitions live in [`config.ghostty`](./config.ghostty).
+Full definitions live in `os/fedora/home/.config/ghostty/os.ghostty`.

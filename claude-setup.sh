@@ -2,7 +2,8 @@
 # Claude Code setup shared by every machine, Fedora or macOS: installs Claude
 # Code, links home/.claude/ into ~/.claude, and adds the marketplaces and
 # plugins from claude-marketplaces.txt and claude-plugins.txt. bootstrap.sh
-# runs it on Fedora; on macOS it is the only part of this repo to run.
+# runs it on both OSes; it also runs standalone for projects that only need
+# Claude Code set up (e.g. trainmuscle.com's `make dev-setup`).
 #
 # Idempotent - safe to re-run. Written for bash 3.2, the version macOS ships.
 set -euo pipefail
@@ -24,10 +25,6 @@ export PATH="$PATH:$HOME/.local/bin"
 step "Linking Claude Code config into ~/.claude"
 find "$DOTFILES_DIR/home/.claude" -type f | while IFS= read -r src; do
     rel="${src#"$DOTFILES_DIR"/home/}"
-    # dotfiles-sync-check scans dnf, COPR and gsettings: Fedora only.
-    if [[ "$(uname -s)" != Linux && "$rel" == .claude/skills/dotfiles-sync-check/* ]]; then
-        continue
-    fi
     dest="$HOME/$rel"
     mkdir -p "$(dirname "$dest")"
     if [[ -e "$dest" && ! -L "$dest" ]]; then
