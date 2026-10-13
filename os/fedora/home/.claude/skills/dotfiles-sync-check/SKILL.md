@@ -1,6 +1,6 @@
 ---
 name: dotfiles-sync-check
-description: Check whether the user's ~/Code/dotfiles repo is missing anything it's supposed to track - new packages/COPR/Flatpak/shell/gsettings/git changes found in shell history, tracked config files (under home/) that were edited live but never copied back, brand-new files sitting next to files that are already tracked (e.g. a new config file added to an app whose directory is already partly tracked), and gnome-settings.sh values that no longer match the live system. Shows a diff of exactly what would be added/removed before touching anything. Use this whenever the user asks to check/sync/update their dotfiles, asks "did we miss anything" or "is this in my dotfiles yet", or after any session where they installed something, edited a tracked config file, added a new config file, or changed a GNOME setting. Also the target of periodic/scheduled dotfiles-sync routines - always run the scan even if nothing seems to have happened, since the point is catching things the user forgot to mention.
+description: Check whether the user's ~/Code/dotfiles repo is missing anything it's supposed to track - new packages/COPR/Flatpak/shell/gsettings/git changes found in shell history, tracked config files (under home/ or os/fedora/home/) that were edited live but never copied back, brand-new files sitting next to files that are already tracked (e.g. a new config file added to an app whose directory is already partly tracked), and os/fedora/gnome-settings.sh values that no longer match the live system. Fedora only - the macOS side of the repo isn't scanned yet. Shows a diff of exactly what would be added/removed before touching anything. Use this whenever the user asks to check/sync/update their dotfiles, asks "did we miss anything" or "is this in my dotfiles yet", or after any session where they installed something, edited a tracked config file, added a new config file, or changed a GNOME setting. Also the target of periodic/scheduled dotfiles-sync routines - always run the scan even if nothing seems to have happened, since the point is catching things the user forgot to mention.
 ---
 
 # Dotfiles sync check
@@ -20,16 +20,18 @@ candidates with the same shape (`id`, `kind`, `summary`, `diff`, `apply`):
    `chsh`, `gsettings set`, `git config --global`, `ssh-keygen`,
    `systemctl enable`, curl-installers, global npm/pip/cargo installs) not
    yet reflected in the matching tracking file.
-2. **file** - a file under the repo's `home/` has a live counterpart
-   (`~/<same relative path>`) whose content has diverged - i.e. someone
-   edited the live file directly and never copied it back.
+2. **file** - a file under the repo's `home/` (shared) or `os/fedora/home/`
+   (Fedora-only) has a live counterpart (`~/<same relative path>`) whose
+   content has diverged - i.e. someone edited the live file directly and
+   never copied it back.
 3. **newfile** - a brand-new file sitting live next to files that are
    already tracked (e.g. `~/.config/helix/languages.toml` appearing next to
    an already-tracked `~/.config/helix/config.toml`). Only checks
    directories that already have at least one tracked file in them, not the
    whole home directory - see the limitation below.
-4. **gsettings** - a `gsettings set` line in `gnome-settings.sh` whose live
-   value (via `gsettings get`) no longer matches what the script says.
+4. **gsettings** - a `gsettings set` line in `os/fedora/gnome-settings.sh`
+   whose live value (via `gsettings get`) no longer matches what the script
+   says.
 
 ## Why this shape
 
@@ -114,15 +116,15 @@ explicit decline.
   successful install from a failed one, or a real command from a mistyped
   fragment - that's exactly why confirmation exists rather than
   auto-applying.
-- File-drift detection only compares files already present under `home/` in
-  the repo - it won't notice a config file that should be tracked but never
-  has been. That's what newfile detection covers *if* a sibling in the same
-  directory is already tracked (e.g. a second file appearing in an
-  already-tracked app's config dir). A tool with *zero* files tracked
-  anywhere yet - a brand new app with no existing anchor point at all, e.g.
-  a first-time install with its own fresh `~/.config/<app>/` - still isn't
-  caught by anything here. That remains a "decide this is worth tracking"
-  judgment call for a human, not something scanning can answer.
+- File-drift detection only compares files already present under `home/` or
+  `os/fedora/home/` in the repo - it won't notice a config file that should
+  be tracked but never has been. That's what newfile detection covers *if* a
+  sibling in the same directory is already tracked (e.g. a second file
+  appearing in an already-tracked app's config dir). A tool with *zero*
+  files tracked anywhere yet - a brand new app with no existing anchor point
+  at all, e.g. a first-time install with its own fresh `~/.config/<app>/` -
+  still isn't caught by anything here. That remains a "decide this is worth
+  tracking" judgment call for a human, not something scanning can answer.
 - newfile detection deliberately never touches the bare home directory
   itself (only subdirectories that already contain a tracked file) - home
   directories have far too much unrelated stuff (Downloads, caches, app
@@ -130,8 +132,9 @@ explicit decline.
   of noise. It also skips anything over 1MB (config files worth tracking
   are small text; anything bigger is almost certainly a binary, and
   suggesting to commit a downloaded binary into the repo is actively wrong).
-- gsettings-drift only covers keys already present in `gnome-settings.sh` -
-  same reasoning as file-drift.
+- gsettings-drift only covers keys already present in
+  `os/fedora/gnome-settings.sh` - same reasoning as file-drift.
 - "Already tracked" (for history candidates) is a substring match against
-  the repo's top-level files. It errs toward showing an item the user
-  already handled rather than hiding one they didn't.
+  the repo's tracking files (everything except the dotfile trees and
+  `os/macos/`). It errs toward showing an item the user already handled
+  rather than hiding one they didn't.

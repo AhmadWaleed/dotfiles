@@ -2,13 +2,14 @@
 # Local llama.cpp router server - serves every model in ~/models, switchable
 # at runtime (OpenCode's /models, or the web UI dropdown at :8080).
 #
-# Uses the Vulkan build (llama-server-vk), not the CUDA one: as of writing,
+# Linux uses the Vulkan build (llama-server-vk), not the CUDA one: as of writing,
 # CUDA has an unresolved upstream bug that crashes on generation for large
 # models (cublasCreate_v2 resource allocation failure -
 # https://github.com/ggml-org/llama.cpp/issues/25304). Vulkan doesn't route
 # through cuBLAS, so it isn't affected. If that's fixed upstream by the time
 # you're reading this, `llama serve` (the CUDA/auto-detecting CLI) may work
-# fine too - worth a try.
+# fine too - worth a try. macOS has no llama-server-vk and falls back to
+# Homebrew's llama-server, which uses Metal.
 #
 # Machine-specific tuning (which GPU to use, how many MoE expert layers to
 # keep on CPU, thread count) is deliberately NOT hardcoded here - it varies
@@ -41,16 +42,21 @@
 #                            (e.g. opencode.json's provider.options.apiKey)
 
 LOCAL_ENV="${XDG_CONFIG_HOME:-$HOME/.config}/llama-router/env"
+# shellcheck source=/dev/null
 [ -f "$LOCAL_ENV" ] && source "$LOCAL_ENV"
 
-exec llama-server-vk \
+server=llama-server-vk
+command -v "$server" >/dev/null 2>&1 || server=llama-server
+cores="$(getconf _NPROCESSORS_ONLN)"
+
+exec "$server" \
   --models-dir "${LLAMA_MODELS_DIR:-$HOME/models}" \
   --models-max 1 \
   ${LLAMA_DEVICE:+--device "$LLAMA_DEVICE"} \
   -ngl 99 \
   ${LLAMA_NCMOE:+-ncmoe "$LLAMA_NCMOE"} \
   -np 1 \
-  -t "${LLAMA_THREADS:-$(nproc)}" -tb "${LLAMA_THREADS:-$(nproc)}" \
+  -t "${LLAMA_THREADS:-$cores}" -tb "${LLAMA_THREADS:-$cores}" \
   -c "${LLAMA_CTX:-32768}" \
   -ctk q8_0 -ctv q8_0 \
   -fa on \

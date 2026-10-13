@@ -5,7 +5,7 @@
       "id": 1,
       "prompt": "Before I trust this on my real machine: can you run a dotfiles sync check against this test setup instead of my real one? Dotfiles repo: evals/files/fixture-new/dotfiles. History files: evals/files/fixture-new/.zsh_history and evals/files/fixture-new/.bash_history. Use --state pointing at a scratch file so it doesn't touch my real state. I installed ripgrep recently and want to know if it'd catch that.",
       "expected_output": "Runs scan_history.py against the fixture paths, finds exactly one candidate (the ripgrep dnf install), and asks the user whether to add it to packages.txt rather than editing it unprompted.",
-      "files": ["evals/files/fixture-new/.zsh_history", "evals/files/fixture-new/.bash_history", "evals/files/fixture-new/dotfiles/packages.txt"],
+      "files": ["evals/files/fixture-new/.zsh_history", "evals/files/fixture-new/.bash_history", "evals/files/fixture-new/dotfiles/os/fedora/packages.txt"],
       "expectations": [
         "Identifies ripgrep as the untracked package",
         "Does not report any other candidate (helix is already tracked and must not appear)",
@@ -18,7 +18,7 @@
       "id": 2,
       "prompt": "Run the same kind of dotfiles sync check but against evals/files/fixture-clean/dotfiles this time, history at evals/files/fixture-clean/.zsh_history and evals/files/fixture-clean/.bash_history, scratch --state file. This one's a control case - everything in that history should already be tracked.",
       "expected_output": "Reports that nothing new was found and stops - no invented findings, no confirmation questions asked, no files edited.",
-      "files": ["evals/files/fixture-clean/.zsh_history", "evals/files/fixture-clean/.bash_history", "evals/files/fixture-clean/dotfiles/packages.txt"],
+      "files": ["evals/files/fixture-clean/.zsh_history", "evals/files/fixture-clean/.bash_history", "evals/files/fixture-clean/dotfiles/os/fedora/packages.txt"],
       "expectations": [
         "Reports zero candidates / nothing new to add",
         "Does not ask the user any confirmation questions",
@@ -29,7 +29,7 @@
       "id": 3,
       "prompt": "One more test run: evals/files/fixture-dismissed/dotfiles as the repo, evals/files/fixture-dismissed/.zsh_history and .bash_history as history, but this time start from the state file already at evals/files/fixture-dismissed/state.json (copy it somewhere writable first so the original fixture isn't mutated). I previously said no to a tmux install suggestion and I don't want to be asked about it again.",
       "expected_output": "The tmux install is present in history and not in packages.txt, but because it's already in the state file's dismissed list, it must not be surfaced again - the skill reports nothing new.",
-      "files": ["evals/files/fixture-dismissed/.zsh_history", "evals/files/fixture-dismissed/.bash_history", "evals/files/fixture-dismissed/dotfiles/packages.txt", "evals/files/fixture-dismissed/state.json"],
+      "files": ["evals/files/fixture-dismissed/.zsh_history", "evals/files/fixture-dismissed/.bash_history", "evals/files/fixture-dismissed/dotfiles/os/fedora/packages.txt", "evals/files/fixture-dismissed/state.json"],
       "expectations": [
         "Does not ask about or mention the tmux install as a new suggestion",
         "Reports zero pending candidates",
@@ -53,7 +53,7 @@
       "id": 5,
       "prompt": "Now test the gsettings-drift part. Dotfiles repo: evals/files/fixture-gsettings-drift/dotfiles. Use --gsettings-bin evals/files/fixture-gsettings-drift/fake-gsettings instead of the real gsettings command (it's a fake that reports accent-color as blue). Scratch --state file, no history files needed. My gnome-settings.sh says the accent color should be slate but I think I changed it since.",
       "expected_output": "Detects that gnome-settings.sh says accent-color slate but the (fake) live value is blue, reports it as one pending change with a one-line summary first, and only shows the line-level diff (-slate / +blue) if asked.",
-      "files": ["evals/files/fixture-gsettings-drift/dotfiles/gnome-settings.sh", "evals/files/fixture-gsettings-drift/fake-gsettings"],
+      "files": ["evals/files/fixture-gsettings-drift/dotfiles/os/fedora/gnome-settings.sh", "evals/files/fixture-gsettings-drift/fake-gsettings"],
       "expectations": [
         "Identifies the accent-color drift (slate in the script vs blue live)",
         "States it as a one-line summary before showing the full diff",

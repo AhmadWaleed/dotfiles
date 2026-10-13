@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Git identity + SSH key + GitHub CLI auth, so `git push`/`gh` work right
 # after bootstrap. Idempotent - safe to re-run. Only prompts (passphrase,
-# browser login) when something is actually missing; requires `gh` (see
-# packages.txt) to already be installed.
+# browser login) when something is actually missing; requires `gh` (from
+# os/fedora/packages.txt or os/macos/Brewfile) to already be installed. Runs
+# on both OSes, so bash 3.2-safe.
 set -euo pipefail
 
 NAME="Ahmed waleed"
@@ -21,7 +22,8 @@ else
     ssh-keygen -t ed25519 -C "$EMAIL" -f "$KEY"
 fi
 
-# Load into the running agent (GNOME keyring provides one at $SSH_AUTH_SOCK).
+# Load into the running agent (GNOME keyring on Fedora, launchd on macOS
+# provides one at $SSH_AUTH_SOCK).
 FPR="$(ssh-keygen -lf "$KEY.pub" | awk '{print $2}')"
 if ssh-add -l 2>/dev/null | grep -q "$FPR"; then
     echo "key already loaded in agent"

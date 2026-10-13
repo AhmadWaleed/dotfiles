@@ -12,8 +12,8 @@
 #    terminated due to an internal error" / "server closed the stream").
 #    Fix is unmerged upstream: helix-editor/helix#16142. The [language.debugger]
 #    tables below are full copies of the upstream defaults with `command`
-#    pointed at a local seq-rewriting shim (~/.local/bin/lldb-dap-seq-shim)
-#    instead of bare "lldb-dap" - remove once that PR lands in a release.
+#    pointed at a local seq-rewriting shim (lldb-dap-seq-shim, looked up on
+#    PATH) instead of bare "lldb-dap" - remove once that PR lands in a release.
 
 [[language]]
 name = "c"
@@ -22,7 +22,7 @@ auto-format = true
 [language.debugger]
 name = "lldb-dap"
 transport = "stdio"
-command = "/home/aw/.local/bin/lldb-dap-seq-shim"
+command = "lldb-dap-seq-shim"
 
 [[language.debugger.templates]]
 name = "binary"
@@ -51,7 +51,7 @@ auto-format = true
 [language.debugger]
 name = "lldb-dap"
 transport = "stdio"
-command = "/home/aw/.local/bin/lldb-dap-seq-shim"
+command = "lldb-dap-seq-shim"
 
 [[language.debugger.templates]]
 name = "binary"
