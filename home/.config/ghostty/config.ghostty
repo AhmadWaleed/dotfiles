@@ -10,7 +10,7 @@ command = zsh
 theme = light:Gruvbox Light,dark:Gruvbox Dark
 
 font-family = mononoki
-font-size = 14
+font-size = 12
 
 cursor-style = bar
 cursor-style-blink = true

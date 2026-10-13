@@ -60,13 +60,6 @@ else
     echo "already zsh"
 fi
 
-step "Installing Claude Code"
-if command -v claude >/dev/null 2>&1; then
-    echo "already installed"
-else
-    curl -fsSL https://claude.ai/install.sh | bash
-fi
-
 step "Installing Codex CLI"
 if command -v codex >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/codex" ]]; then
     echo "already installed"
@@ -90,17 +83,8 @@ else
     curl -LsSf https://llama.app/install.sh | sh
 fi
 
-step "Adding Claude Code marketplaces"
-mapfile -t marketplaces < <(grep -vE '^\s*#|^\s*$' claude-marketplaces.txt)
-for m in "${marketplaces[@]}"; do
-    claude plugin marketplace add "$m"
-done
-
-step "Installing Claude Code plugins"
-mapfile -t plugins < <(grep -vE '^\s*#|^\s*$' claude-plugins.txt)
-for p in "${plugins[@]}"; do
-    claude plugin install -y "$p"
-done
+# Claude Code, its config links and plugins; shared with macOS.
+./claude-setup.sh
 
 step "Setting up SSH key and GitHub CLI auth"
 ./github-ssh.sh

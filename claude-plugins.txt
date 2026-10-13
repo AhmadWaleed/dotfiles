@@ -3,3 +3,5 @@
 # Marketplace(s) added first from claude-marketplaces.txt.
 
 skill-creator@claude-plugins-official
+humanlayer@jeffh-claude-plugins
+cc-skills-golang@samber

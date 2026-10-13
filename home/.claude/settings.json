@@ -2,7 +2,8 @@
   "model": "opus",
   "enabledPlugins": {
     "skill-creator@claude-plugins-official": true,
-    "humanlayer@jeffh-claude-plugins": true
+    "humanlayer@jeffh-claude-plugins": true,
+    "cc-skills-golang@samber": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -22,6 +23,11 @@
         "source": "github",
         "repo": "samber/cc"
       }
+    }
+  },
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "high"
     }
   },
   "tui": "fullscreen",

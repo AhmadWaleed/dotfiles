@@ -11,6 +11,7 @@ start fresh, `git clone` + `./bootstrap.sh` gets me back to where I am today.
 ├── packages.txt         # dnf package names, one per line
 ├── copr.txt             # copr repos to enable before installing packages
 ├── flatpak.txt          # flatpak app IDs, installed from flathub
+├── claude-setup.sh     # Claude Code + its config + plugins; also runs on macOS
 ├── claude-marketplaces.txt # Claude Code plugin marketplaces to add
 ├── claude-plugins.txt   # Claude Code marketplace plugins to install
 ├── github-ssh.sh        # git identity + SSH key + gh auth
@@ -47,6 +48,15 @@ git clone <this-repo-url> ~/Code/dotfiles
 cd ~/Code/dotfiles
 ./bootstrap.sh
 ```
+
+## macOS
+
+Only the Claude Code part applies: everything else here is Fedora/GNOME
+specific. On a Mac, clone this repo to `~/Code/dotfiles` and run
+`./claude-setup.sh` - it installs Claude Code, links `home/.claude/` into
+`~/.claude` (minus the Fedora-only `dotfiles-sync-check` skill) and installs
+the plugins. Project repos that call it (trainmuscle.com's `make dev-setup`)
+expect it at that path, or at `$DOTFILES_DIR`.
 
 ## Adding something new
 
